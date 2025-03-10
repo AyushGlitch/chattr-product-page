@@ -17,56 +17,34 @@ const screenshots = [
 
 export function Screenshots() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   const [sliderRef, instanceRef] = useKeenSlider({
+    initial: 0,
     loop: true,
-    mode: "snap",
     slides: {
       perView: 1,
       spacing: 15,
     },
-    defaultAnimation: {
-      duration: 1000
-    },
     slideChanged(slider) {
       setCurrentSlide(slider.track.details.rel);
     },
-  }, [
-    (slider) => {
-      let timeout: ReturnType<typeof setTimeout>;
-      let mouseOver = false;
-
-      function clearNextTimeout() {
-        clearTimeout(timeout);
-      }
-
-      function nextTimeout() {
-        clearTimeout(timeout);
-        if (mouseOver) return;
-        timeout = setTimeout(() => {
-          slider.next();
-        }, 8000);
-      }
-
-      slider.on("created", () => {
-        nextTimeout();
-      });
-
-      slider.on("dragStarted", clearNextTimeout);
-      slider.on("animationEnded", nextTimeout);
-      slider.on("updated", nextTimeout);
-
-      slider.container.addEventListener("mouseover", () => {
-        mouseOver = true;
-        clearNextTimeout();
-      });
-
-      slider.container.addEventListener("mouseout", () => {
-        mouseOver = false;
-        nextTimeout();
-      });
+    created() {
+      setLoaded(true);
     },
-  ]);
+  });
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (instanceRef.current) {
+        instanceRef.current.next();
+      }
+    }, 8000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [instanceRef]);
 
   return (
     <section className="py-20 bg-gray-50 dark:bg-gray-800">
@@ -80,18 +58,20 @@ export function Screenshots() {
               </div>
             ))}
           </div>
-          <div className="flex justify-center gap-2 mt-4">
-            {screenshots.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => instanceRef.current?.moveToIdx(idx)}
-                className={`w-2 h-2 rounded-full transition-colors duration-200 ${
-                  currentSlide === idx ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
-          </div>
+          {loaded && (
+            <div className="flex justify-center gap-2 mt-4">
+              {screenshots.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => instanceRef.current?.moveToIdx(idx)}
+                  className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+                    currentSlide === idx ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

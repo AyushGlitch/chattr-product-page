@@ -15,7 +15,8 @@ export function Hero() {
             Scale Your Chat Experience
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            A modern, scalable chat application built with React, Express, WebSocket, Redis, and Kafka
+            A modern, scalable chat application built with React, Express, WebSocket, Redis, and Kafka.
+            Experience real-time messaging at scale with enterprise-grade reliability.
           </p>
         </motion.div>
       </div>
